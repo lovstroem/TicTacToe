@@ -14,6 +14,13 @@ line_width = 6
 markers = []
 pos = []
 player = 1
+winner = 0
+game_over = False
+"""
+[0,0,0]
+[0,0,0]
+[0,0,0]
+8 different ways to win for either side."""
 
 #define colors
 green = (0,255,0)
@@ -44,32 +51,54 @@ def draw_markers():
             y_pos += 1
         x_pos += 1
 
+def won():
+    global winner
+    global game_over
+    y_pos = 0
+    for x in markers:
+        if sum(x) == 3:
+            winner = 1
+            game_over = True
+        if sum(x) == -3:
+            winner = 2
+            game_over = True
+        if markers[0][y_pos] + markers[1][y_pos] + markers[2][y_pos] == 3:
+            winner = 1
+            game_over = True
+        if markers[0][y_pos] + markers[1][y_pos] + markers[2][y_pos] == -3:
+            winner = 2
+            game_over = True
+        y_pos += 1
+    if markers[0][0] + markers[1][1] + markers[2][2] == 3 or markers[2][0] + markers[1][1] + markers[0][2] == 3:
+        winner = 1
+        game_over = True
+    if markers[0][0] + markers[1][1] + markers[2][2] == -3 or markers[2][0] + markers[1][1] + markers[0][2] == -3:
+        winner = 2
+        game_over = True
+
+
 run = True
 while run:
 
     draw_grid()
     draw_markers()
+    won()
 
     #add event handlers
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if event.type == pygame.MOUSEBUTTONUP:
+        if event.type == pygame.MOUSEBUTTONUP and game_over == False:
             pos = pygame.mouse.get_pos()
             print(f"X = {pos[0]} Y = {pos[1]}")
             cell_x = pos[0]
             cell_y = pos[1]
             if markers[cell_x // 100][cell_y // 100] == 0:
                 markers[cell_x // 100][cell_y // 100] = player
-                player *= -1
-                """Example: cell_x = 169. 169 / 100 = 1.69. // means floor division.
-                1.69 gets rounded down to nearest whole number, meaning 1.
-                cell_y = 246. 246 // 100 = 2. 
-                THEN, checks if list posisition of markers is 0, meaning not used by a player.
-                markers[1][2] == 0.
-                If the spot is empty, fill the position with the player id.
-                Either 1 or -1 depending on which turn it is.
-                 """
+                player *= -1     
+        if game_over == True:
+            print(f"Player {winner} won the game")
+            run = False
     pygame.display.update()
 
 pygame.quit()
